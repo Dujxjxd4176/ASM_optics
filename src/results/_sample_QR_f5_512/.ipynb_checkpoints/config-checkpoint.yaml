@@ -1,10 +1,10 @@
-# config.yaml
+ # config.yaml
 # all units in μm
 simulation:
   λ: 532e-3   # 532e-3 μm = 532 nm
-  resolution: [2**9, 2**9, 1000] #Nx, Ny, Nz
+  resolution: [2**10, 2**10, 1000] #Nx, Ny, Nz
   # simulation range (in micron) (aperture file will be fitted to this xy range)
-  range: [-512, 512, -512, 512, 0, 10e3] # x_start, x_end, y_start, y_end, z_start, z_end
+  range: [-512, 512, -512, 512, 30e3, 40e3] # x_start, x_end, y_start, y_end, z_start, z_end
   z_batch_size: 4
   num_process: 6 # number of parallel computing workers
 save:
@@ -14,7 +14,7 @@ save:
 path:
   E2: ./E2/_sample_QR_f5_512
   results: ./results/_sample_QR_f5_512
-  aperture: ./aperture/_sample_QR_f5_512.bmp # image in _sample is zoomed and zero_padded to increase ASM simulation accuracy
+  aperture: ./aperture/product/quad_f35_1024.bmp
 
 plot:
   N_ticks: [8, 8, 8]
