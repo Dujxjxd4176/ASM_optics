@@ -47,13 +47,14 @@ def RalyeighSommerfield(A_xy, Lx, Ly, zs, λ,scalefactor):
     r = dist(xsimv,ysimv, 0 , xv[:,:,None,None] , yv[:,:,None,None],zs)
     E = (np.abs(np.sum((-1j/λ)*A_xy[:,:,None,None]*np.exp(k*1j*r)*zs[700]/r**2 , axis = (2,3))))**2
     """
+    # 1d inner loop 
     for i in xsim:
         print(i)
         xa = np.where(xsim == i)
         r = dist(xv[:,:,None],yv[:,:,None],0, i,ysim,zs)
-        print(r.shape)
         E[xa]= (np.abs(np.sum((-1j/λ)*A_xy[:,:,None]*np.exp(k*1j*r)*zs/r**2,axis = (0,1))))**2
     '''
+     2d outerloop 
     for i in xsim:
         print(i)
         xa = np.where(xsim == i)
