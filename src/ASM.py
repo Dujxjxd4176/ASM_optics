@@ -25,11 +25,11 @@ def RalyeighSommerfield(A_xy, Lx, Ly, zs, λ,scalefactor):
     xRatio = Nx/(Lx)
     yRatio = Ny/(Ly)
     x = np.arange(Lx) 
-    CenterX = Lx /2 
-    CenterY = Ly /2 
-    ScreenRad = 100
-    xsim = np.arange(CenterX - (screenRad/2),CenterY - (screenRad/2),scalefactor)
-    ysim = np.arange(CenterY - (screenRad/2),CenterY - (screenRad/2),scalefactor)
+    CenterX = (Lx /2)+100
+    CenterY = (Ly /2) +100
+    ScreenRad = 25
+    xsim = np.arange(CenterX - (ScreenRad/2),CenterY + (ScreenRad/2),scalefactor)
+    ysim = np.arange(CenterY - (ScreenRad/2),CenterY + (ScreenRad/2),scalefactor)
     E = np.zeros((xsim.size,ysim.size))
     y = np.arange(Ly)
     xv , yv = np.meshgrid(x,y)
@@ -41,26 +41,29 @@ def RalyeighSommerfield(A_xy, Lx, Ly, zs, λ,scalefactor):
 
     A_xy = A_xy[np.ix_(NxPreCompute,NyPreCompute)]
 
+
     """
-    for i in range(split):
-        E += rsworker(A_xyS[i],xsimvS[i],ysimvS[i],zs[700], λ,k)
-    return E
+    xsimv ,ysimv = np.meshgrid(xsim,ysim)
+    r = dist(xsimv,ysimv, 0 , xv[:,:,None,None] , yv[:,:,None,None],zs)
+    E = (np.abs(np.sum((-1j/λ)*A_xy[:,:,None,None]*np.exp(k*1j*r)*zs[700]/r**2 , axis = (2,3))))**2
     """
-    '''
-    r = dist(xsimv,ysimv, 0 , xv[:,:,None,None] , yv[:,:,None,None],zs[700])
-    E = np.sum((-1j/λ)*A_xy[:,:,None,None]*np.exp(k*1j*r)*zs[700]/r**2 , axis = (2,3))
-    '''
-    
     for i in xsim:
         print(i)
-        xa = int(i/scalefactor)
+        xa = np.where(xsim == i)
+        r = dist(xv[:,:,None],yv[:,:,None],0, i,ysim,zs)
+        print(r.shape)
+        E[xa]= (np.abs(np.sum((-1j/λ)*A_xy[:,:,None]*np.exp(k*1j*r)*zs/r**2,axis = (0,1))))**2
+    '''
+    for i in xsim:
+        print(i)
+        xa = np.where(xsim == i)
         for j in ysim:
-            r = dist(xv,yv,0, i,j,zs[700])
-            ya = int(j/scalefactor)
-            E[xa,ya]= np.sum((-1j/λ)*A_xy*np.exp(k*1j*r)*zs[700]/r**2)
-          
+            r = dist(xv,yv,0, i,j,zs)
+            ya = np.where(ysim == j)
+            E[xa,ya]= (np.abs(np.sum((-1j/λ)*A_xy*np.exp(k*1j*r)*zs/r**2)))**2
+    '''      
     return E
-
+    
 
 def ASM_3D(A_xy, Lx, Ly, zs, λ):
     '''
