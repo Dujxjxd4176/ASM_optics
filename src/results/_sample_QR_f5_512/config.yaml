@@ -14,7 +14,7 @@ save:
 path:
   E2: ./E2/_sample_QR_f5_512
   results: ./results/_sample_QR_f5_512
-  aperture: ./aperture/product/quad_f35_1024.bmp
+  aperture: ./quad_f35_edge_pass_1024/quad_f35_edge_pass_1024.bmp
 
 plot:
   N_ticks: [8, 8, 8]
