@@ -3,6 +3,17 @@ def func_2_arr(f, Nx, Ny, Lx, Ly):
     x, y = np.meshgrid(np.linspace(-Lx/2, Lx/2, Nx, endpoint=False), np.linspace(-Ly/2, Ly/2, Ny, endpoint=False), indexing='ij')
     return f(x,y)
 
+class guass:
+    bx = 0
+    cx = 0
+    by = 0
+    cy = 0
+    def __init__(self,widthx,widthy):
+        self.cx = widthx /3 
+        self.cy = widthy /3
+    def calc (self, x,y):
+        return np.exp(-1*((x-self.bx)**2/(2*self.cx**2)+(y-self.by)**2/(2*self.cy**2)))
+
 def r(x,y,x_c, y_c):
     '''
     x_c <float>

@@ -7,12 +7,24 @@ from tqdm import tqdm
 import os
 import gc
 from multiprocessing import Process, shared_memory
+import dill
 # %load_ext autoreload
 # %autoreload 2
 # %matplotlib ipympl
 π=np.pi
 def dist(x, y, z, x_c, y_c, z_c):
     return ((x-x_c)**2+(y-y_c)**2+(z-z_c)**2)**0.5
+
+class DillProcess(Process):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._target = dill.dumps(self._target)  # Save the target function as bytes, using dill
+
+    def run(self):
+        if self._target:
+            self._target = dill.loads(self._target)    # Unpickle the target function before executing
+            self._target(*self._args, **self._kwargs)  # Execute the target function
 
 def rsWorker(A_xy,xsimv, ysimv, z , xv,yv,λ,k):
     r = dist(xsimv,ysimv, 0 , xv[:,:,None,None] , yv[:,:,None,None],zs[700])
@@ -196,6 +208,7 @@ def ASM_3D_batch_E2_Multi_Process(A_xy, Lx, Ly, zs, λ, path, batch_size, xy_ran
     '''
     xy_range_index <tuple<int, int, int, int>> x_start, x_end, y_start, y_end (ends are inclusive)
     '''
+    #global worker
     Nx, Ny = A_xy.shape
     x1, x2, y1, y2 = 0, Nx-1, 0, Ny-1
     if xy_range_idx is not None:
@@ -216,8 +229,7 @@ def ASM_3D_batch_E2_Multi_Process(A_xy, Lx, Ly, zs, λ, path, batch_size, xy_ran
     FFT_A[:] = np.fft.fft2(A_xy) # Nx, Ny # domain: 0 to N-1
     zs2, zs2_shm, zs2_data = utils.create_shared_array(arr_shape=zs.shape, dtype=zs.dtype)
     zs2[:] = zs
-
-    def worker(p_idx):
+    def workerlol(p_idx):
         FFT_A, FFT_A_shm = utils.load_shared_array(*FFT_A_data)
         kz, kz_shm = utils.load_shared_array(*kz_data)
         zs2, zs2_shm = utils.load_shared_array(*zs2_data)
@@ -233,7 +245,7 @@ def ASM_3D_batch_E2_Multi_Process(A_xy, Lx, Ly, zs, λ, path, batch_size, xy_ran
         zs2_shm.close()
     processes = []
     for p_idx in range(num_process):
-        processes.append(Process(target=worker, args=(p_idx,) ) )
+        processes.append(DillProcess(target=workerlol, args=(p_idx,) ) )
     for p in processes:
         p.start()
     for p in processes:
